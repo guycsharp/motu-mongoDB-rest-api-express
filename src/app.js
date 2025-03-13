@@ -3,7 +3,13 @@ import express from 'express'; // Express is a popular web framework for buildin
 import cors from 'cors'; // CORS middleware to handle Cross-Origin Resource Sharing
 import bodyParser from 'body-parser'; // Body-parser middleware to parse incoming JSON request bodies
 import routes from './routes/routes.js'; // Importing routes defined in the routes folder
-import connectDB from './config/MongoDB.js';
+// import connectDB from './config/MongoDB.js';
+import connectDB from './config/MySqlDB.js';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
+
 
 connectDB();
 // Create an instance of the Express app
