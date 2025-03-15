@@ -7,6 +7,7 @@ const life = {
   // Define the lifeCheck function
   // This function sends a JSON response containing the "life" object
   export const lifeCheck = (req, res) => {
+    console.log('lifecheck')
     res.json(life); // Sends the life object as the response in JSON format
   };
   
