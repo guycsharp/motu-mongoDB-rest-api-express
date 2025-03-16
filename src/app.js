@@ -1,23 +1,27 @@
 // Importing required modules
-import express from 'express'; // Express is a popular web framework for building APIs
-import cors from 'cors'; // CORS middleware to handle Cross-Origin Resource Sharing
-import bodyParser from 'body-parser'; // Body-parser middleware to parse incoming JSON request bodies
-import routes from './routes/routes.js'; // Importing routes defined in the routes folder
-import connectDB from './config/MongoDB.js';
+import express from 'express'; // Import Express to build the app
+import cors from 'cors'; // Middleware to enable CORS
+import bodyParser from 'body-parser'; // Middleware to parse JSON request bodies
+import router from './routes/routes.js'; // Import the routes
+import connectDB from './config/MongoDB.js'; // Import MongoDB connection logic
+import dotenv from 'dotenv'; // Load environment variables
 
+// Load environment variables
+dotenv.config();
+
+// Initialize database connection
 connectDB();
+
 // Create an instance of the Express app
 const app = express();
 
 // Middleware setup
-app.use(cors()); // Enable all CORS requests
-app.use(bodyParser.json()); // Parse incoming JSON payloads
+app.use(cors()); // Enable CORS for all routes
+app.use(bodyParser.json()); // Parse incoming JSON requests
 
-// Set up routing
-// Mounting the router on the path '/lifeCheck'
-app.use('/lifeCheck', routes);
+// Mount routes
+app.use('/', router); // Mounting all routes from routes.js at the root path
 
 // Start the server
-// The app listens on the port specified in the environment variables or defaults to 5000
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
