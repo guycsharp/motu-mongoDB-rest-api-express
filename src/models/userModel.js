@@ -1,36 +1,59 @@
-import mongoose from 'mongoose'; // Importing Mongoose using ES modules
-import bcrypt from 'bcrypt'; // Importing bcrypt for password hashing
+import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
-// Defining the user schema structure with Mongoose
 const userSchema = new mongoose.Schema(
     {
-        name: { type: String, required: true }, // User's name, a required field
-        password: { type: String, required: true }, // User's password, a required field (will be hashed before saving)
-        email: { type: String, required: true, unique: true }, // User's email, required and must be unique
-        age: { type: Number }, // User's age, optional field
+        name: { type: String, required: true },
+        password: { type: String, required: true },
+        email: { type: String, required: true, unique: true },
+        age: { type: Number },
     },
-    { timestamps: true } // Automatically adds createdAt and updatedAt fields to the schema
+    { timestamps: true }
 );
 
-// Middleware to hash the password before saving the document
+// STEP 5: Middleware runs before saving the document
 userSchema.pre('save', async function (next) {
-    if (this.isModified('password')) { // Check if the password field is modified
+    console.log('▶️ [5] Entering pre("save") middleware');
+
+    if (this.isModified('password')) {
+        console.log('▶️ [6] Password is modified, hashing...');
         try {
-            const salt = await bcrypt.genSalt(10); // Generate a salt
-            this.password = await bcrypt.hash(this.password, salt); // Hash the password using the salt
+            const salt = await bcrypt.genSalt(10);
+            console.log('▶️ [6.1] Generated salt:', salt);
+
+            this.password = await bcrypt.hash(this.password, salt);
+            console.log('✅ [6.2] Hashed password:', this.password);
         } catch (error) {
-            return next(error); // Pass any error to the next middleware
+            console.error('❌ [6.3] Error during hashing:', error.message);
+            return next(error); // Pass error to next middleware
         }
     }
-    next(); // Continue with the save operation
+
+    console.log('▶️ [7] Exiting pre("save"), calling next()...');
+    next(); // Pass control back to `.save()`
 });
 
-// Method to compare a plain text password with the stored hashed password
-userSchema.methods.comparePassword = async function (password) {
-    return bcrypt.compare(password, this.password); // Returns true if passwords match
-};
-
-// Creating the User model from the schema, which allows interaction with the 'users' collection in MongoDB
+// Create User model
 const User = mongoose.model('user', userSchema);
 
-export default User; // Exporting User using ES6 syntax for use in other files
+export default User;
+
+
+
+// Middleware to hash the password before saving the document
+/**
+ * This is a Mongoose middleware that runs before saving the document to the database.
+pre('save') = "Before you save, do this first..."
+ * this refers to the document being saved (the user object).
+if (this.isModified('password')) →
+This checks if the password field has been modified.
+This prevents rehashing the password unnecessarily if it's not changed.
+const salt = await bcrypt.genSalt(10) →
+Generates a unique "salt" value that makes the hash stronger.
+10 → Salt rounds (higher = more secure but slower).
+this.password = await bcrypt.hash(this.password, salt) →
+Hashes the password using the generated salt.
+next() →
+Tells Mongoose to continue the operation and proceed to saving the document.
+If an error occurs → next(error) sends the error to the error handler.
+ */
